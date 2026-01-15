@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { connectDB } from "@/lib/db"
 import { User } from "@/models/user"
 import { verifyPassword } from "@/lib/auth"
-import { signToken } from "@/lib/jwt"
+import { signAccessToken } from "@/lib/jwt"
 import { loginSchema } from "@/lib/validators/auth"
 
 export async function POST(req: Request) {
@@ -36,13 +36,24 @@ export async function POST(req: Request) {
     )
   }
 
-  const token = signToken({
+  const token = signAccessToken({
     userId: user._id.toString(),
     email: user.email,
   })
 
   const response = NextResponse.json({ message: "Login successful" })
 
+  response.cookies.set({
+  name: "edge_token",
+  value: token,
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "strict",
+  path: "/",
+  maxAge: 15 * 60, // 15 minutes
+})
+
+  
   response.cookies.set("token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

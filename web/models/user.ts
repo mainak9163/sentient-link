@@ -1,20 +1,75 @@
-import { Schema, models, model } from "mongoose"
+import mongoose, { Schema, Types } from "mongoose"
 
-const UserSchema = new Schema(
+export interface IUser {
+  _id: Types.ObjectId
+
+  name: string
+  email: string
+  emailVerified: boolean
+
+  avatarUrl?: string
+
+  authProviders: {
+    email?: {
+      passwordHash: string
+      verifiedAt?: Date
+    }
+    google?: {
+      googleId: string
+      email: string
+    }
+  }
+
+  status: "active" | "suspended" | "deleted"
+
+  createdAt: Date
+  updatedAt: Date
+}
+
+const UserSchema = new Schema<IUser>(
   {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
     email: {
       type: String,
       required: true,
       unique: true,
       lowercase: true,
-      trim: true,
+      index: true,
     },
-    passwordHash: {
+
+    emailVerified: {
+      type: Boolean,
+      default: false,
+    },
+
+    avatarUrl: {
       type: String,
-      required: true,
+    },
+
+    authProviders: {
+      email: {
+        passwordHash: { type: String },
+        verifiedAt: { type: Date },
+      },
+      google: {
+        googleId: { type: String },
+        email: { type: String },
+      },
+    },
+
+    status: {
+      type: String,
+      enum: ["active", "suspended", "deleted"],
+      default: "active",
     },
   },
   { timestamps: true }
 )
 
-export const User = models.User || model("User", UserSchema)
+export const User =
+  mongoose.models.User || mongoose.model<IUser>("User", UserSchema)
