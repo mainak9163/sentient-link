@@ -93,17 +93,6 @@ export async function POST(req: Request) {
     const response = NextResponse.json({
       accessToken: newAccessToken,
     })
-    
-    response.cookies.set({
-  name: "edge_token",
-  value: newAccessToken,
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "strict",
-  path: "/",
-  maxAge: 15 * 60,
-})
-
 
     response.cookies.set({
       name: "refreshToken",

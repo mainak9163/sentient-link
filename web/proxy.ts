@@ -1,39 +1,58 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import { verifyEdgeToken } from "@/lib/jwt-edge"
+import { verifyRefreshToken } from "./lib/jwt"
 
-// jwt does not work on edge functions(middleware), so we use 'jose' in lib/jwt-edge.ts
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
-  const token = req.cookies.get("token")?.value
+  const refreshToken = req.cookies.get("refreshToken")?.value
 
-  const isAuthPage = pathname === "/login" || pathname === "/register"
+  const isAuthPage =
+    pathname === "/login" || pathname === "/register"
+
   const isProtectedRoute =
-    pathname.startsWith("/dashboard") || pathname.startsWith("/links")
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/links")
 
-  // 1️⃣ User is NOT logged in
-  if (!token) {
+  /* =========================
+     NO TOKEN PRESENT
+  ========================= */
+
+  if (!refreshToken) {
     if (isProtectedRoute) {
-      return NextResponse.redirect(new URL("/login", req.url))
+      return NextResponse.redirect(
+        new URL("/login", req.url)
+      )
     }
     return NextResponse.next()
   }
 
-  // 2️⃣ User HAS token → verify it
-  try {
-    await verifyEdgeToken(token)
+  /* =========================
+     TOKEN PRESENT → VERIFY
+  ========================= */
 
-    // Logged-in user visiting login/register → redirect to dashboard
+  try {
+    await verifyRefreshToken(refreshToken)
+
+    // Logged-in user trying to access login/register
     if (isAuthPage) {
-      return NextResponse.redirect(new URL("/dashboard", req.url))
+      return NextResponse.redirect(
+        new URL("/dashboard", req.url)
+      )
     }
 
     return NextResponse.next()
   } catch {
-    // Invalid token → clear cookie + redirect
-    const response = NextResponse.redirect(new URL("/login", req.url))
-    response.cookies.set("token", "", { maxAge: 0 })
-    return response
+    // Invalid / expired token → clear + redirect
+    // const response = NextResponse.redirect(
+    //   new URL("/login", req.url)
+    // )
+
+    // response.cookies.set("edge_token", "", {
+    //   maxAge: 0,
+    //   path: "/",
+    // })
+
+    // return response
   }
 }
 

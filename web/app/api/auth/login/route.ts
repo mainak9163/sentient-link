@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server"
+import crypto from "crypto"
+
 import { connectDB } from "@/lib/db"
 import { User } from "@/models/user"
+import { Session } from "@/models/session"
 import { verifyPassword } from "@/lib/auth"
-import { signAccessToken } from "@/lib/jwt"
+import {
+  signAccessToken,
+  signRefreshToken,
+} from "@/lib/jwt"
 import { loginSchema } from "@/lib/validators/auth"
 
 export async function POST(req: Request) {
@@ -21,12 +27,21 @@ export async function POST(req: Request) {
   await connectDB()
 
   const user = await User.findOne({ email })
-  if (!user) {
+  if (!user || !user.passwordHash) {
     return NextResponse.json(
       { message: "Invalid credentials" },
       { status: 401 }
     )
   }
+
+  if (!user.emailVerified) {
+  return NextResponse.json(
+    {
+      message: "Please verify your email before logging in",
+    },
+    { status: 403 }
+  )
+}
 
   const isValid = await verifyPassword(password, user.passwordHash)
   if (!isValid) {
@@ -36,30 +51,48 @@ export async function POST(req: Request) {
     )
   }
 
-  const token = signAccessToken({
+  // 1️⃣ Create tokens
+  const accessToken = signAccessToken({
     userId: user._id.toString(),
-    email: user.email,
   })
 
-  const response = NextResponse.json({ message: "Login successful" })
+  const refreshToken = signRefreshToken({
+    userId: user._id.toString(),
+  })
+
+  // 2️⃣ Store session
+  const refreshTokenHash = crypto
+    .createHash("sha256")
+    .update(refreshToken)
+    .digest("hex")
+
+  await Session.create({
+    userId: user._id,
+    refreshTokenHash,
+    revoked: false,
+    expiresAt: new Date(
+      Date.now() + 7 * 24 * 60 * 60 * 1000
+    ),
+  })
+
+  // 3️⃣ Set cookie + return accessToken
+  const response = NextResponse.json({
+    accessToken,
+    user: {
+      id: user._id,
+      email: user.email,
+      name: user.name,
+    },
+  })
 
   response.cookies.set({
-  name: "edge_token",
-  value: token,
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "strict",
-  path: "/",
-  maxAge: 15 * 60, // 15 minutes
-})
-
-  
-  response.cookies.set("token", token, {
+    name: "refreshToken",
+    value: refreshToken,
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: 60 * 60 * 24 * 7,
     path: "/",
+    maxAge: 7 * 24 * 60 * 60,
   })
 
   return response

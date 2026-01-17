@@ -104,17 +104,6 @@ export async function POST(req: Request) {
       maxAge: 7 * 24 * 60 * 60,
     })
 
-    // edge token
-    response.cookies.set({
-      name: "edge_token",
-      value: accessToken,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
-      maxAge: 15 * 60,
-    })
-
     return response
   } catch (error) {
     console.error("[GOOGLE_AUTH_ERROR]", error)
