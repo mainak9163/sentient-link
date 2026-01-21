@@ -8,3 +8,6 @@ def get_qdrant_client() -> QdrantClient:
         api_key=qdrant_settings.api_key,
         timeout=30,
     )
+
+
+client = get_qdrant_client()

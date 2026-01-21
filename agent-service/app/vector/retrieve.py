@@ -1,44 +1,25 @@
-from typing import List
-from qdrant_client.models import Filter, FieldCondition, MatchValue
-
-from app.vector.client import get_qdrant_client
+from app.vector.client import client
 from app.vector.config import qdrant_settings
 from app.llm.embeddings import embed_text
 
 
-def retrieve_memories(
-    query_text: str,
-    user_id: str,
-    limit: int = 5,
-) -> List[dict]:
-    """
-    Retrieve semantically similar memories for a user.
-    """
-    client = get_qdrant_client()
+def retrieve_memories(query_text: str, user_id: str, limit: int = 5):
+    embedding = embed_text(query_text)
 
-    query_vector = embed_text(query_text)
-
-    results = client.search(
+    response = client.query_points(
         collection_name=qdrant_settings.collection_name,
-        query_vector=query_vector,
+        query=embedding,
         limit=limit,
-        query_filter=Filter(
-            must=[
-                FieldCondition(
-                    key="user_id",
-                    match=MatchValue(value=user_id),
-                )
-            ]
-        ),
+        with_payload=True,
     )
 
     memories = []
-    for hit in results:
-        memories.append(
-            {
-                "score": hit.score,
-                "payload": hit.payload,
-            }
-        )
+
+    for point in response.points:
+        payload = point.payload or {}
+        metadata = payload.get("metadata", {})
+
+        if metadata.get("user_id") == user_id:
+            memories.append(payload)
 
     return memories

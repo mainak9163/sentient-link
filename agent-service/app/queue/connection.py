@@ -1,8 +1,6 @@
 from redis import Redis
 from app.core.config import settings
 
+
 def get_redis() -> Redis:
-    return Redis.from_url(
-        settings.redis_url,
-        decode_responses=False  # ✅ REQUIRED for RQ
-    )
+    return Redis.from_url(settings.redis_url, decode_responses=False)

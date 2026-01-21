@@ -5,6 +5,7 @@ from app.schemas.job import AgentJob
 from datetime import datetime
 from app.results.store import save_agent_result
 from app.results.models import AgentResult
+from app.workers.tasks import process_agent_job
 
 
 def enqueue_agent_job(job: AgentJob) -> Job:
@@ -23,8 +24,8 @@ def enqueue_agent_job(job: AgentJob) -> Job:
     )
 
     return queue.enqueue(
-        "app.workers.tasks.process_agent_job",
-        job.dict(),
+        process_agent_job,
+        job.model_dump(),
         retry=Retry(max=3, interval=[10, 30, 60]),
         job_timeout=600,
         result_ttl=86400,

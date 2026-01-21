@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from app.core.config import settings
 import os
 
 

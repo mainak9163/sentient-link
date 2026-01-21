@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Dict, Any
+from typing import Dict, Any, Optional, Union
 from datetime import datetime
 
 
@@ -9,5 +9,5 @@ class AgentResult(BaseModel):
     user_id: str
     link_id: str
     status: str  # queued | completed | failed
-    result: Dict[str, Any] | str
+    result: Optional[Union[Dict[str, Any], str]] = None
     created_at: datetime
