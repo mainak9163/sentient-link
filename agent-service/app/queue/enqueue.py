@@ -9,8 +9,21 @@ from app.workers.tasks import process_agent_job
 
 
 def enqueue_agent_job(job: AgentJob) -> Job:
-    queue = get_agent_queue()
+    """
+    Enqueue an agent job for asynchronous processing.
 
+    This function:
+    - Persists an initial AgentResult with status 'queued'
+    - Enqueues the job into the agent RQ queue
+    - Configures retry, timeout, and result TTL policies
+    """
+
+    print("[QUEUE] Acquiring agent job queue...")
+    queue = get_agent_queue()
+    print("[QUEUE] Agent queue acquired")
+
+    # Persist initial job result state before execution
+    print("[QUEUE] Saving initial agent result with status 'queued'...")
     save_agent_result(
         AgentResult(
             request_id=job.payload.request_id,
@@ -22,11 +35,18 @@ def enqueue_agent_job(job: AgentJob) -> Job:
             created_at=datetime.utcnow(),
         )
     )
+    print("[QUEUE][SUCCESS] Initial agent result saved")
 
-    return queue.enqueue(
+    # Enqueue job for background processing
+    print("[QUEUE] Enqueuing agent job for processing...")
+    rq_job = queue.enqueue(
         process_agent_job,
         job.model_dump(),
         retry=Retry(max=3, interval=[10, 30, 60]),
         job_timeout=600,
         result_ttl=86400,
     )
+
+    print(f"[QUEUE][SUCCESS] Job enqueued with ID: {rq_job.id}")
+
+    return rq_job
