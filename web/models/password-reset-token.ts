@@ -1,4 +1,4 @@
-import mongoose, { Schema, Types } from "mongoose"
+import mongoose, { Schema } from "mongoose"
 
 const PasswordResetTokenSchema = new Schema(
   {
@@ -12,11 +12,18 @@ const PasswordResetTokenSchema = new Schema(
     tokenHash: {
       type: String,
       required: true,
+      unique: true,
     },
 
     expiresAt: {
       type: Date,
       required: true,
+      index: true,
+    },
+
+    isUsed: {
+      type: Boolean,
+      default: false,
       index: true,
     },
 
@@ -27,6 +34,7 @@ const PasswordResetTokenSchema = new Schema(
   { timestamps: { createdAt: true, updatedAt: false } }
 )
 
+// Auto-delete expired tokens
 PasswordResetTokenSchema.index(
   { expiresAt: 1 },
   { expireAfterSeconds: 0 }

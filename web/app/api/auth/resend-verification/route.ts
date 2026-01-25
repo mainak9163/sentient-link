@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server"
-import crypto from "crypto"
 
 import { connectDB } from "@/lib/db"
 import { User } from "@/models/user"
 import { EmailVerificationToken } from "@/models/email-verification-token"
+import { createEmailVerificationToken } from "@/lib/create-email-verification"
 import { sendVerificationEmail } from "@/lib/send-verification-email"
-
 
 export async function POST(req: Request) {
   try {
@@ -13,7 +12,10 @@ export async function POST(req: Request) {
 
     if (!email) {
       return NextResponse.json(
-        { message: "Email is required" },
+        {
+          code: "EMAIL_REQUIRED",
+          message: "Email is required",
+        },
         { status: 400 }
       )
     }
@@ -22,7 +24,7 @@ export async function POST(req: Request) {
 
     const user = await User.findOne({ email })
 
-    // ✅ SECURITY: do not leak user existence
+    // 🔒 SECURITY: never leak existence
     if (!user) {
       return NextResponse.json({
         message:
@@ -30,35 +32,46 @@ export async function POST(req: Request) {
       })
     }
 
-    // ✅ Already verified → no resend
+    // 🚫 OAuth-only accounts should NOT receive verification emails
+    if (!user.authProviders?.email) {
+      return NextResponse.json(
+        {
+          code: "OAUTH_ONLY_ACCOUNT",
+          message:
+            "This account uses OAuth and does not require email verification",
+        },
+        { status: 400 }
+      )
+    }
+
+    // ✅ Already verified
     if (user.emailVerified) {
       return NextResponse.json({
         message: "Email already verified",
       })
     }
 
-    // 1️⃣ Invalidate previous tokens
-    await EmailVerificationToken.deleteMany({
+    // ⏱️ Basic resend throttling (anti-spam)
+    const recentToken = await EmailVerificationToken.findOne({
       userId: user._id,
+      isUsed: false,
+      createdAt: {
+        $gt: new Date(Date.now() - 2 * 60 * 1000), // 2 minutes
+      },
     })
 
-    // 2️⃣ Create new token
-    const rawToken = crypto.randomBytes(32).toString("hex")
-    const tokenHash = crypto
-      .createHash("sha256")
-      .update(rawToken)
-      .digest("hex")
+    if (recentToken) {
+      return NextResponse.json({
+        message:
+          "A verification email was sent recently. Please wait before retrying.",
+      })
+    }
 
-    await EmailVerificationToken.create({
-      userId: user._id,
-      tokenHash,
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    })
+    // 1️⃣ Create fresh token (old ones invalidated internally)
+    const token = await createEmailVerificationToken(user._id)
 
-    // 3️⃣ Send email
-    const verifyUrl = `${process.env.BASE_URL}/verify-email?token=${rawToken}`
-
-    await sendVerificationEmail(user.email, verifyUrl)
+    // 2️⃣ Send verification email
+    await sendVerificationEmail(user.email, token)
 
     return NextResponse.json({
       message:
@@ -66,8 +79,12 @@ export async function POST(req: Request) {
     })
   } catch (error) {
     console.error("[RESEND_VERIFICATION_ERROR]", error)
+
     return NextResponse.json(
-      { message: "Internal server error" },
+      {
+        code: "INTERNAL_ERROR",
+        message: "Internal server error",
+      },
       { status: 500 }
     )
   }

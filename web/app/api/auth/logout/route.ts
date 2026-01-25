@@ -1,47 +1,35 @@
 import { NextResponse } from "next/server"
 import crypto from "crypto"
+import { cookies } from "next/headers"
 
 import { connectDB } from "@/lib/db"
 import { Session } from "@/models/session"
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
-    const cookieHeader = req.headers.get("cookie")
+    await connectDB()
 
-    if (cookieHeader) {
-      const refreshTokenMatch = cookieHeader
-        .split("; ")
-        .find((c) => c.startsWith("refreshToken="))
+    const cookieStore = await cookies()
+    const refreshToken = cookieStore.get("refreshToken")?.value
 
-      if (refreshTokenMatch) {
-        const refreshToken = refreshTokenMatch.split("=")[1]
+    if (refreshToken) {
+      const refreshTokenHash = crypto
+        .createHash("sha256")
+        .update(refreshToken)
+        .digest("hex")
 
-        const refreshTokenHash = crypto
-          .createHash("sha256")
-          .update(refreshToken)
-          .digest("hex")
-
-        await connectDB()
-
-        // Revoke session (safe even if already revoked)
-        await Session.updateOne(
-          { refreshTokenHash },
-          { revoked: true }
-        )
-      }
+      // 🔒 Revoke session (idempotent & safe)
+      await Session.updateMany(
+        { refreshTokenHash },
+        { revoked: true }
+      )
     }
 
-    // Always clear cookie
     const response = NextResponse.json({
       message: "Logged out successfully",
     })
 
-    response.cookies.set("edge_token", "", {
-  maxAge: 0,
-  path: "/",
-})
-
-
+    // ✅ Clear refresh token cookie
     response.cookies.set({
       name: "refreshToken",
       value: "",
@@ -55,8 +43,12 @@ export async function POST(req: Request) {
     return response
   } catch (error) {
     console.error("[LOGOUT_ERROR]", error)
+
     return NextResponse.json(
-      { message: "Internal server error" },
+      {
+        code: "INTERNAL_ERROR",
+        message: "Internal server error",
+      },
       { status: 500 }
     )
   }

@@ -5,17 +5,24 @@ import { connectDB } from "@/lib/db"
 import { User } from "@/models/user"
 import { PasswordResetToken } from "@/models/password-reset-token"
 import { hashPassword } from "@/lib/auth"
+import { resetPasswordSchema } from "@/lib/validators/auth"
 
 export async function POST(req: Request) {
   try {
-    const { token, password } = await req.json()
+    const body = await req.json()
 
-    if (!token || !password) {
+    const parsed = resetPasswordSchema.safeParse(body)
+    if (!parsed.success) {
       return NextResponse.json(
-        { message: "Invalid request" },
+        {
+          code: "INVALID_INPUT",
+          errors: parsed.error.flatten().fieldErrors,
+        },
         { status: 400 }
       )
     }
+
+    const { token, password } = parsed.data
 
     await connectDB()
 
@@ -26,28 +33,39 @@ export async function POST(req: Request) {
 
     const resetToken = await PasswordResetToken.findOne({
       tokenHash,
+      isUsed: false,
       expiresAt: { $gt: new Date() },
     })
 
     if (!resetToken) {
       return NextResponse.json(
-        { message: "Invalid or expired reset link" },
+        {
+          code: "INVALID_OR_EXPIRED_TOKEN",
+          message: "Invalid or expired reset link",
+        },
         { status: 400 }
       )
     }
 
     const user = await User.findById(resetToken.userId)
-    if (!user) {
+    if (!user || !user.authProviders?.email) {
       return NextResponse.json(
         { message: "Invalid reset request" },
         { status: 400 }
       )
     }
 
-    user.passwordHash = await hashPassword(password)
+    // ✅ Update password in the correct place
+    user.authProviders.email.passwordHash = await hashPassword(password)
     await user.save()
 
-    await PasswordResetToken.deleteMany({ userId: user._id })
+    // ✅ Mark token as used
+    resetToken.isUsed = true
+    resetToken.usedAt = new Date()
+    await resetToken.save()
+
+    // 🔒 Optional: revoke all sessions
+    // await Session.updateMany({ userId: user._id }, { revoked: true })
 
     return NextResponse.json({
       message: "Password reset successful",
@@ -55,7 +73,7 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error("[RESET_PASSWORD_ERROR]", err)
     return NextResponse.json(
-      { message: "Internal server error" },
+      { code: "INTERNAL_ERROR", message: "Internal server error" },
       { status: 500 }
     )
   }

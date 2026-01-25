@@ -10,7 +10,7 @@ export async function verifyEmailToken(rawToken: string) {
 
   const record = await EmailVerificationToken.findOne({
     tokenHash,
-    usedAt: { $exists: false },
+    isUsed: false,
     expiresAt: { $gt: new Date() },
   })
 
@@ -18,14 +18,26 @@ export async function verifyEmailToken(rawToken: string) {
     throw new Error("Invalid or expired token")
   }
 
-  await User.updateOne(
-    { _id: record.userId },
-    {
-      emailVerified: true,
-      "authProviders.email.verifiedAt": new Date(),
-    }
-  )
+  const user = await User.findById(record.userId)
+  if (!user) {
+    throw new Error("User not found")
+  }
 
+  // 🔁 Idempotent: already verified
+  if (user.emailVerified) {
+    record.isUsed = true
+    record.usedAt = new Date()
+    await record.save()
+    return
+  }
+
+  // ✅ Verify user
+  user.emailVerified = true
+  user.authProviders.email.verifiedAt = new Date()
+  await user.save()
+
+  // ✅ Mark token used
+  record.isUsed = true
   record.usedAt = new Date()
   await record.save()
 }

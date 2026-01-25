@@ -1,7 +1,7 @@
 import { transporter } from "./email"
 
 export async function sendVerificationEmail(email: string, token: string) {
-  const verifyUrl = `${process.env.APP_URL}/verify-email?token=${token}`
+  const verifyUrl = `${process.env.WEB_URL}/verify-email?token=${token}`
 
   await transporter.sendMail({
     from: `"URL Shortener" <${process.env.SMTP_FROM}>`,

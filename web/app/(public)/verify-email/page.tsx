@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
@@ -10,7 +10,13 @@ export default function VerifyEmailPage() {
   const searchParams = useSearchParams()
   const token = searchParams.get("token")
 
+  //  Prevent double execution (React Strict Mode)
+  const hasRun = useRef(false)
+
   useEffect(() => {
+    if (hasRun.current) return
+    hasRun.current = true
+
     if (!token) {
       toast.error("Invalid verification link")
       router.replace("/login")
@@ -19,25 +25,41 @@ export default function VerifyEmailPage() {
 
     async function verifyEmail() {
       try {
-        const res = await fetch("/api/auth/verify-email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token }),
-        })
+        const res = await fetch(
+          `/api/auth/verify-email?token=${encodeURIComponent(token?? "")}`,
+          {
+            method: "GET",
+          }
+        )
 
         const data = await res.json()
 
         if (!res.ok) {
-          throw new Error(data.message || "Verification failed")
+          switch (data.code) {
+            case "TOKEN_MISSING":
+              toast.error("Verification token is missing")
+              break
+
+            case "INVALID_OR_EXPIRED_TOKEN":
+              toast.error("Verification link is invalid or expired")
+              break
+
+            default:
+              toast.error(data.message || "Email verification failed")
+          }
+
+          setTimeout(() => router.replace("/login"), 3000)
+          return
         }
 
-        toast.success("Email verified successfully! You can now log in.")
+        toast.success("Email verified successfully! You can now log in 🎉")
 
         setTimeout(() => {
           router.replace("/login")
         }, 2500)
-      } catch (err) {
-        toast.error("Verification link is invalid or expired")
+      } catch {
+        toast.error("Network error while verifying email")
+
         setTimeout(() => {
           router.replace("/login")
         }, 3000)
