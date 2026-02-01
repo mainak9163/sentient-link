@@ -59,14 +59,88 @@ def analyze_link(job: AgentJob):
         print("[WORKER] Constructing base prompt")
 
         base_prompt = f"""
-You are an AI system that MUST return valid JSON.
+You are an AI system responsible for generating HIGH-QUALITY, HUMAN-FRIENDLY
+shortcodes for shortened URLs.
 
-Analyze the following URL for intent, safety, and categorization.
+Your goal is NOT to generate random strings.
+Your goal is to perform semantic compression.
 
+-----------------------------------
+INPUT
+-----------------------------------
 URL: {job.payload.original_url}
 User intent: {job.payload.user_intent}
 
-Respond ONLY in the following JSON format:
+-----------------------------------
+UNDERSTANDING URL CLASSES
+-----------------------------------
+
+URLs generally fall into one of these categories:
+
+1. Personal / Portfolio Websites
+   - Purpose: identity, credibility, professional sharing
+   - Good aliases: names, identity-based, readable
+   - Examples: john, johnfolio, gulll, dev-john
+
+2. Product / Marketing Pages
+   - Purpose: promotion, campaigns, offers
+   - Good aliases: sale, launch, offer, summer24
+
+3. Documents / Resources
+   - Purpose: access, reference
+   - Good aliases: resume, proposal, notes, spec
+
+4. Meetings / Events
+   - Purpose: quick access, action-oriented
+   - Good aliases: meet, demo, call, standup
+
+5. Technical / API / Webhooks
+   - Purpose: system clarity
+   - Good aliases: webhook, callback, auth, status
+
+6. Social / Media Content
+   - Purpose: content sharing
+   - Good aliases: yt-demo, tweet, post, clip
+
+-----------------------------------
+SHORTCODE PRINCIPLES (CRITICAL)
+-----------------------------------
+
+A good shortcode:
+- is human-readable
+- is pronounceable
+- aligns with user intent
+- gives an immediate hint of what the link is
+- feels intentional, not generated
+
+A bad shortcode:
+- looks random (x9f2, a1b2)
+- encodes IDs or hashes
+- ignores user intent
+- requires explanation
+
+-----------------------------------
+USER INTENT MATTERS
+-----------------------------------
+
+The SAME URL can have different ideal aliases depending on intent:
+
+- "share professionally" → clean, identity-based
+- "marketing campaign" → catchy, promotional
+- "internal testing" → technical, descriptive
+- "temporary use" → short, disposable
+
+Always adapt the alias to the intent.
+
+-----------------------------------
+OUTPUT REQUIREMENTS
+-----------------------------------
+
+You MUST return valid JSON only.
+Do NOT include markdown.
+Do NOT include explanations outside JSON.
+
+Return EXACTLY this format:
 
 {{
   "tags": ["string"],
@@ -77,14 +151,12 @@ Respond ONLY in the following JSON format:
 
 Rules:
 - risk_score must be between 0 and 1
-- suggested_alias must be URL-safe (lowercase, hyphens only)
-- Do NOT include markdown
-- Do NOT include explanations outside JSON
+- suggested_alias must be lowercase, URL-safe, hyphens only
+- reasoning should briefly justify the alias choice
+- The response MUST start with {{ and end with }}
+
 IMPORTANT:
-Return ONLY raw JSON.
-DONT GIVE MARKDOWN YOU PIECE OF SHIT . DO NOT FCKINGGGGGGGGG GIVE MARKDOWN.
-Do not include explanations.
-Do not include backticks.
+Return ONLY raw JSON. Nothing else.
 """
 
         # 2️⃣ Initialize LangGraph

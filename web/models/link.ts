@@ -1,4 +1,4 @@
-import mongoose, { Schema, models, model } from "mongoose"
+import  { Schema, models, model } from "mongoose"
 
 const LinkSchema = new Schema(
   {
@@ -24,6 +24,19 @@ const LinkSchema = new Schema(
     expiresAt: {
       type: Date,
     },
+requestId: {
+  type: String,
+  index: true,
+},
+aiStatus: {
+  type: String,
+  enum: ["pending", "completed", "failed"],
+  default: "pending",
+},
+aiResult: {
+  type: Object,
+},
+
   },
   { timestamps: true }
 )

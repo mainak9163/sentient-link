@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input"
 
 import { useRegister } from "@/hooks/use-register"
 import { PasswordRequirements } from "../password-requirements"
+import { GoogleLoginButton } from "../login/google-login-button"
+
 
 export function RegisterForm({
   className,
@@ -34,7 +36,7 @@ export function RegisterForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className={cn("flex flex-col gap-6", className)}
+      className={cn("flex flex-col gap-4", className)}
       {...props}
     >
       <FieldGroup>
@@ -78,7 +80,6 @@ export function RegisterForm({
             disabled={loading}
           />
 
-          {/* 🔐 Live password feedback */}
           <PasswordRequirements password={password} />
         </Field>
 
@@ -86,7 +87,9 @@ export function RegisterForm({
           {loading ? "Creating account…" : "Create account"}
         </Button>
 
-        <FieldSeparator />
+        <FieldSeparator>Or continue with</FieldSeparator>
+
+        <GoogleLoginButton />
 
         <FieldDescription className="text-center">
           Already have an account?{" "}

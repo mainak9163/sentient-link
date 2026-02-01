@@ -1,4 +1,3 @@
-import { LogoutButton } from "@/components/auth/logout-button"
 import { Navbar } from "@/components/navbar"
 
 
@@ -8,10 +7,9 @@ export default function ProtectedLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
-      <LogoutButton />
-      <main className="p-6">{children}</main>
+      <main className="p-6 flex-1 flex flex-col justify-center items-center">{children}</main>
     </div>
   )
 }

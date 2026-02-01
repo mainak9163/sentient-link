@@ -92,7 +92,18 @@ export async function POST(req: Request) {
         email: user.email,
       },
     })
-
+     
+    // ✅ Access token cookie
+response.cookies.set({
+  name: "accessToken",
+  value: accessToken,
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "strict",
+  path: "/",
+  maxAge: 15 * 60, // 15 minutes
+})
+    
     // refresh token
     response.cookies.set({
       name: "refreshToken",

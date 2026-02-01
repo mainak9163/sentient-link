@@ -26,7 +26,7 @@ export function LogoutButton() {
   }
 
   return (
-    <div className="fixed top-4 right-4 z-50">
+    <div>
       <Button
         variant="ghost"
         size="icon"

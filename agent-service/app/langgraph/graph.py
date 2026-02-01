@@ -1,6 +1,6 @@
 from langgraph.graph import StateGraph, END
 from app.langgraph.state import AgentState
-from app.langgraph.nodes import retrieve_node, generate_node
+from app.langgraph.nodes import reflect_node, retrieve_node, generate_node
 
 
 def build_agent_graph():
@@ -27,6 +27,9 @@ def build_agent_graph():
     graph.add_node("generate", generate_node)
     print("[GRAPH] Node registered: generate")
 
+    graph.add_node("reflect", reflect_node)
+    print("[GRAPH] Node registered: reflect")
+
     # Define graph execution flow
     print("[GRAPH] Defining graph execution flow...")
     graph.set_entry_point("retrieve")
@@ -35,8 +38,11 @@ def build_agent_graph():
     graph.add_edge("retrieve", "generate")
     print("[GRAPH] Edge added: retrieve → generate")
 
-    graph.add_edge("generate", END)
-    print("[GRAPH] Edge added: generate → END")
+    graph.add_edge("generate", "reflect")
+    print("[GRAPH] Edge added: generate → reflect")
+
+    graph.add_edge("reflect", END)
+    print("[GRAPH] Edge added: reflect → END")
 
     # Compile the graph into an executable workflow
     print("[GRAPH] Compiling agent graph...")

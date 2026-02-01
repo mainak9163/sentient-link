@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     }
 
     // 🚫 OAuth-only accounts cannot reset password
-    if (!user.authProviders?.email) {
+    if (!user.authProviders?.email?.passwordHash) {
       return NextResponse.json({
         message:
           "If an account exists, a password reset link has been sent",
