@@ -1,11 +1,7 @@
 import json
 from datetime import datetime
-from redis import Redis
 from app.queue.connection import get_redis
 from app.results.models import AgentResult
-
-# Initialize Redis client for result storage
-redis: Redis = get_redis()
 
 # Redis key prefix for agent results
 KEY_PREFIX = "agent:result:"
@@ -28,6 +24,7 @@ def save_agent_result(result: AgentResult):
 
     print(f"[RESULTS] Saving agent result for request_id={result.request_id}")
 
+    redis = get_redis()
     redis.set(
         _key(result.request_id),
         json.dumps(result.model_dump(), default=str),
@@ -47,6 +44,7 @@ def get_agent_result(request_id: str) -> AgentResult | None:
 
     print(f"[RESULTS] Fetching agent result for request_id={request_id}")
 
+    redis = get_redis()
     raw = redis.get(_key(request_id))
     if not raw:
         print("[RESULTS][MISS] No agent result found")

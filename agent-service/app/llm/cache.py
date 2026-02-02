@@ -1,9 +1,5 @@
 import hashlib
-from redis import Redis
 from app.queue.connection import get_redis
-
-# Initialize Redis connection (shared client)
-redis: Redis = get_redis()
 
 # Time-to-live for cached LLM responses (24 hours)
 CACHE_TTL = 60 * 60 * 24  # 24 hours
@@ -32,6 +28,7 @@ def get_cached_response(prompt: str) -> str | None:
     key = f"gemini:{_hash(prompt)}"
     print(f"[CACHE] Looking up cache for key: {key}")
 
+    redis = get_redis()
     value = redis.get(key)
 
     if value:
@@ -50,6 +47,7 @@ def set_cached_response(prompt: str, response: str):
     key = f"gemini:{_hash(prompt)}"
     print(f"[CACHE] Caching response with key: {key} (TTL={CACHE_TTL}s)")
 
+    redis = get_redis()
     redis.setex(key, CACHE_TTL, response)
 
     print("[CACHE][SUCCESS] Response cached successfully")

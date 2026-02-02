@@ -45,6 +45,7 @@ export interface CreateLinkResponse {
   shortCode: string
   aiStatus: AIStatus
   status: "created"
+  aliasSource:string
 }
 
 export interface GetLinksResponse {

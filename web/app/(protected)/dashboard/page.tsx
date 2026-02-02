@@ -1,4 +1,4 @@
-import { CreateLinkForm } from "@/components/dashboard/create-link-form"
+import { CreateLinkForm } from "@/components/dashboard/create-link-form/create-link-form"
 
 export default function DashboardPage() {
   return (

@@ -4,9 +4,10 @@ import { Field, FieldLabel, FieldDescription } from "@/components/ui/field"
 interface IntentInputProps {
   value: string
   onChange: (value: string) => void
+  disabled?: boolean
 }
 
-export function IntentInput({ value, onChange }: IntentInputProps) {
+export function IntentInput({ value, onChange, disabled }: IntentInputProps) {
   return (
     <Field>
       <FieldLabel>
@@ -17,8 +18,11 @@ export function IntentInput({ value, onChange }: IntentInputProps) {
         placeholder="share resume with recruiters"
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
       />
-      <FieldDescription>Helps AI generate a better alias.</FieldDescription>
+      <FieldDescription>
+        Helps AI generate a better, more meaningful alias.
+      </FieldDescription>
     </Field>
   )
 }

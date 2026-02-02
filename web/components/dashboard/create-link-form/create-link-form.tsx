@@ -10,8 +10,8 @@ import { AliasInput } from "./alias-input"
 import { IntentInput } from "./intent-input"
 import { SubmitButton } from "./submit-button"
 import { ResultPreview } from "./result-preview"
+import { LoadingState } from "./loading-state"
 import { useCreateLink } from "./hooks/use-create-link"
-import { useAgentSync } from "@/hooks/use-agent-sync"
 
 import type { FormState, CreateLinkResponse } from "./types"
 
@@ -26,10 +26,6 @@ export function CreateLinkForm() {
   const [formState, setFormState] = useState<FormState>(INITIAL_FORM_STATE)
   const [result, setResult] = useState<CreateLinkResponse | null>(null)
 
-  const { status: agentStatus, result: agentResult } = useAgentSync(
-    result?.id ?? undefined
-  )
-
   const { createLink, isLoading } = useCreateLink({
     onSuccess: handleSuccess,
     onError: handleError,
@@ -41,7 +37,16 @@ export function CreateLinkForm() {
 
   function handleSuccess(data: CreateLinkResponse) {
     setResult(data)
-    toast.success("Short link created")
+    
+    // Show different toast based on alias source
+    const messages = {
+      custom: "Custom link created",
+      ai: "AI-powered link created",
+      gemini: "Smart link created",
+      nanoid: "Link created",
+    }
+    
+    toast.success(messages[data.aliasSource])
 
     navigator.clipboard.writeText(data.shortUrl)
     toast.message("Copied to clipboard", {
@@ -83,32 +88,42 @@ export function CreateLinkForm() {
         <UrlInput
           value={formState.originalUrl}
           onChange={(value) => updateField("originalUrl", value)}
+          disabled={isLoading}
         />
 
         <ModeToggle
           checked={formState.useCustomAlias}
           onCheckedChange={(checked) => updateField("useCustomAlias", checked)}
+          disabled={isLoading}
         />
 
         {formState.useCustomAlias ? (
           <AliasInput
             value={formState.customCode}
             onChange={(value) => updateField("customCode", value)}
+            disabled={isLoading}
           />
         ) : (
           <IntentInput
             value={formState.userIntent}
             onChange={(value) => updateField("userIntent", value)}
+            disabled={isLoading}
           />
         )}
 
-        <SubmitButton isLoading={isLoading} />
+        {isLoading && (
+          <LoadingState useCustomAlias={formState.useCustomAlias} />
+        )}
+
+        <SubmitButton 
+          isLoading={isLoading}
+          useCustomAlias={formState.useCustomAlias}
+        />
 
         {result && (
           <ResultPreview
             shortUrl={result.shortUrl}
-            agentStatus={agentStatus}
-            agentResult={agentResult}
+            aliasSource={result.aliasSource}
           />
         )}
       </div>

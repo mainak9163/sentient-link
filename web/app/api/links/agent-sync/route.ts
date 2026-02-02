@@ -1,68 +1,39 @@
 import { NextResponse } from "next/server"
-import { connectDB } from "@/lib/db"
-import { Link } from "@/models/link"
 import { getAuthUser } from "@/lib/get-auth-user"
+import { AgentSyncService } from "./agent-sync.service"
+import { RequestValidator } from "./request-validator"
+import { ErrorHandler } from "./error-handler"
+import { LOG_PREFIXES } from "./constants"
+import type { AuthUser } from "./types"
 
-export async function GET(req: Request) {
-  const user = await getAuthUser()
-  if (!user) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
-  }
+const agentSyncService = new AgentSyncService()
 
-  const { searchParams } = new URL(req.url)
-  const linkId = searchParams.get("linkId")
+/**
+ * GET /api/agent-sync
+ * Sync agent processing status and update link with results
+ * @query linkId - The link ID to sync
+ */
+export async function GET(req: Request): Promise<NextResponse> {
+  console.info(`${LOG_PREFIXES.AGENT_SYNC} GET /api/agent-sync`)
 
-  if (!linkId) {
-    return NextResponse.json({ message: "Missing linkId" }, { status: 400 })
-  }
-
-  await connectDB()
-
-  const link = await Link.findOne({ _id: linkId, userId: user.userId })
-  if (!link || !link.requestId) {
-    return NextResponse.json({ status: "no-agent" })
-  }
-
-  // Call agent-service
   try {
-    const res = await fetch(
-      `${process.env.AGENT_API_URL}/api/v1/agent/result/${link.requestId}`,
-      {
-        headers: {
-          "X-API-KEY": process.env.INTERNAL_API_KEY!,
-        },
-      }
-    )
-
-    if (!res.ok) {
-      return NextResponse.json({ status: "pending" })
+    // Authenticate user
+    const user: AuthUser | null = await getAuthUser()
+    if (!user) {
+      return ErrorHandler.unauthorized()
     }
 
-    const agentResult = await res.json()
+    // Validate and extract linkId
+    const linkId = RequestValidator.validateLinkId(req.url)
 
-    if (agentResult.status !== "completed") {
-      return NextResponse.json({ status: agentResult.status })
-    }
-
-    // Update link with AI result
-    link.aiStatus = "completed"
-    link.aiResult = agentResult.result
-    link.tags = agentResult.result.tags
-    link.riskScore = agentResult.result.risk_score
-
-    // Optionally auto-apply alias
-    if (!link.customAlias && agentResult.result.suggested_alias) {
-      link.shortCode = agentResult.result.suggested_alias
-    }
-
-    await link.save()
-
-    return NextResponse.json({
-      status: "completed",
-      result: agentResult.result,
+    // Sync link status with agent
+    const result = await agentSyncService.syncLinkStatus({
+      linkId,
+      userId: user.userId,
     })
-  } catch {
-    // Agent down
-    return NextResponse.json({ status: "pending" })
+
+    return NextResponse.json(result)
+  } catch (error) {
+    return ErrorHandler.handle(error)
   }
 }

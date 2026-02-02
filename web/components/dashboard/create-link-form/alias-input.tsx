@@ -4,9 +4,10 @@ import { Field, FieldLabel, FieldDescription } from "@/components/ui/field"
 interface AliasInputProps {
   value: string
   onChange: (value: string) => void
+  disabled?: boolean
 }
 
-export function AliasInput({ value, onChange }: AliasInputProps) {
+export function AliasInput({ value, onChange, disabled }: AliasInputProps) {
   return (
     <Field>
       <FieldLabel>Custom short code</FieldLabel>
@@ -15,6 +16,7 @@ export function AliasInput({ value, onChange }: AliasInputProps) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         pattern="[a-z0-9-]+"
+        disabled={disabled}
         required
       />
       <FieldDescription>

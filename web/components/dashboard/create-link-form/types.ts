@@ -11,30 +11,23 @@ export interface CreateLinkPayload {
   userIntent?: string
 }
 
+export type AliasSource = "custom" | "ai" | "gemini" | "nanoid"
+
 export interface CreateLinkResponse {
   id: string
   shortUrl: string
-  message?: string
+  shortCode: string
+  aliasSource: AliasSource  // NEW: indicates how alias was generated
+  requestId?: string | null
+  aiStatus?: string
 }
 
 export interface AgentResult {
-  /** Categorization tags for the link */
-  tags: string[];
-  
-  /** Risk assessment score (0-1, where 0 is lowest risk) */
-  risk_score: number;
-  
-  /** AI-suggested human-readable alias for the link */
-  suggested_alias: string;
-  
-  /** Explanation of how the alias was generated */
-  reasoning: string;
-};
+  suggested_alias?: string
+  tags?: string[]
+  risk_score?: number
+  reasoning?: string
+  [key: string]: unknown
+}
 
-export type AgentStatus =
-  | "idle"
-  | "no-agent"
-  | "pending"
-  | "running"
-  | "completed"
-  | "failed"
+export type AgentStatus = "idle" | "processing" | "completed" | "error"
