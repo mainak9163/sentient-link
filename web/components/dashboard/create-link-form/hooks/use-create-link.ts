@@ -1,5 +1,6 @@
 import { useState } from "react"
 
+import { authFetch } from "@/lib/auth-fetch"
 import type { CreateLinkPayload, CreateLinkResponse } from "../types"
 
 interface UseCreateLinkOptions {
@@ -14,7 +15,7 @@ export function useCreateLink({ onSuccess, onError }: UseCreateLinkOptions) {
     setIsLoading(true)
 
     try {
-      const response = await fetch("/api/links", {
+      const response = await authFetch("/api/links", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

@@ -1,3 +1,7 @@
+"use client"
+
+import { useEffect } from "react"
+import { loadAccessToken } from "@/lib/auth-token"
 import { Navbar } from "@/components/navbar"
 
 
@@ -6,6 +10,11 @@ export default function ProtectedLayout({
 }: {
   children: React.ReactNode
 }) {
+  // Load access token from sessionStorage on mount
+  useEffect(() => {
+    loadAccessToken()
+  }, [])
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
