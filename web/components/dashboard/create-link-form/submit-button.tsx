@@ -9,7 +9,7 @@ interface SubmitButtonProps {
 export function SubmitButton({ isLoading, useCustomAlias }: SubmitButtonProps) {
   const getButtonText = () => {
     if (!isLoading) {
-      return "Create short link"
+        return useCustomAlias ? "Create Link" : "Generate Smart Link"
     }
 
     if (useCustomAlias) {

@@ -12,7 +12,7 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center subtle-shadow
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center subtle-shadow
 group-hover:card-hover transition-all">
               <Link2 className="h-5 w-5 text-primary-foreground" />
             </div>
