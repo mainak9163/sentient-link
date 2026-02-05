@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json()
 
-    // 1️⃣ Validate input
+    // validate input
     const parsed = loginSchema.safeParse(body)
     if (!parsed.success) {
       return NextResponse.json(
@@ -29,10 +29,10 @@ export async function POST(req: Request) {
 
     await connectDB()
 
-    // 2️⃣ Find user
+    // find user
     const user = await User.findOne({ email })
 
-    // 🚫 Do NOT leak account existence
+    // do NOT leak account existence
     if (!user) {
       return NextResponse.json(
         {
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // 3️⃣ OAuth-only hardening
+    //  OAuth-only hardening
     if (!user.authProviders?.email) {
       return NextResponse.json(
         {
@@ -66,7 +66,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // 4️⃣ Email verification check
+    // email verification check
     if (!user.emailVerified) {
       return NextResponse.json(
         {
@@ -77,7 +77,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // 5️⃣ Verify password
+    // verify password
     const isValid = await verifyPassword(password, passwordHash)
     if (!isValid) {
       return NextResponse.json(
@@ -89,7 +89,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // 6️⃣ Issue tokens
+    // issue tokens
     const accessToken = signAccessToken({
       userId: user._id.toString(),
     })
@@ -98,7 +98,7 @@ export async function POST(req: Request) {
       userId: user._id.toString(),
     })
 
-    // 7️⃣ Persist session (hashed refresh token)
+    // persist session (hashed refresh token)
     const refreshTokenHash = crypto
       .createHash("sha256")
       .update(refreshToken)
@@ -111,7 +111,7 @@ export async function POST(req: Request) {
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     })
 
-    // 8️⃣ Respond + set cookie
+    // respond + set cookie
     const response = NextResponse.json({
       accessToken,
       user: {

@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json()
 
-    // 1️⃣ Validate input
+    // validate input
     const parsed = registerSchema.safeParse(body)
     if (!parsed.success) {
       return NextResponse.json(
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
     await connectDB()
 
-    // 2️⃣ Check if user already exists
+    // check if user already exists
     const existingUser = await User.findOne({ email })
     if (existingUser) {
       return NextResponse.json(

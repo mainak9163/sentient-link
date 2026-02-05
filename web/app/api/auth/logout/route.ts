@@ -18,7 +18,7 @@ export async function POST() {
         .update(refreshToken)
         .digest("hex")
 
-      // 🔒 Revoke session (idempotent & safe)
+      // revoke session (idempotent & safe)
       await Session.updateMany(
         { refreshTokenHash },
         { revoked: true }
@@ -29,7 +29,7 @@ export async function POST() {
       message: "Logged out successfully",
     })
 
-    // ✅ Clear refresh token cookie
+    // clear refresh token cookie
     response.cookies.set({
       name: "refreshToken",
       value: "",

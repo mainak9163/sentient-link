@@ -55,16 +55,16 @@ export async function POST(req: Request) {
       )
     }
 
-    // ✅ Update password in the correct place
+    //  update password in the correct place
     user.authProviders.email.passwordHash = await hashPassword(password)
     await user.save()
 
-    // ✅ Mark token as used
+    // mark token as used
     resetToken.isUsed = true
     resetToken.usedAt = new Date()
     await resetToken.save()
 
-    // 🔒 Optional: revoke all sessions
+    // optional: revoke all sessions
     // await Session.updateMany({ userId: user._id }, { revoked: true })
 
     return NextResponse.json({

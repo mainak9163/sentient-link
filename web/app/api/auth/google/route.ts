@@ -21,12 +21,12 @@ export async function POST(req: Request) {
       )
     }
 
-    // 1️⃣ Verify Google token
+    // verify Google token
     const googleUser = await verifyGoogleIdToken(idToken)
 
     await connectDB()
 
-    // 2️⃣ Find existing user
+    // find existing user
     let user = await User.findOne({
       $or: [
         { "authProviders.google.googleId": googleUser.googleId },
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
       ],
     })
 
-    // 3️⃣ Create or link user
+    // create or link user
     if (!user) {
       user = await User.create({
         name: googleUser.name,
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
         },
       })
     } else {
-      // Link Google provider if not linked
+      // link Google provider if not linked
       if (!user.authProviders?.google) {
         user.authProviders.google = {
           googleId: googleUser.googleId,
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
       }
     }
 
-    // 4️⃣ Create tokens
+    // create tokens
     const accessToken = signAccessToken({
       userId: user._id.toString(),
     })
@@ -73,7 +73,7 @@ export async function POST(req: Request) {
       .update(refreshToken)
       .digest("hex")
 
-    // 5️⃣ Store session
+    // store session
     await Session.create({
       userId: user._id,
       refreshTokenHash,
@@ -82,7 +82,7 @@ export async function POST(req: Request) {
       ),
     })
 
-    // 6️⃣ Response + cookies
+    // response + cookies
     const response = NextResponse.json({
       message: "Google login successful",
       accessToken,
@@ -93,7 +93,7 @@ export async function POST(req: Request) {
       },
     })
      
-    // ✅ Access token cookie
+    // access token cookie
 response.cookies.set({
   name: "accessToken",
   value: accessToken,

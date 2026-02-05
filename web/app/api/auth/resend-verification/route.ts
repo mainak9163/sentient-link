@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
     const user = await User.findOne({ email })
 
-    // 🔒 SECURITY: never leak existence
+    // security: never leak existence
     if (!user) {
       return NextResponse.json({
         message:
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
       })
     }
 
-    // 🚫 OAuth-only accounts should NOT receive verification emails
+    //  OAuth-only accounts should NOT receive verification emails
     if (!user.authProviders?.email) {
       return NextResponse.json(
         {
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // ✅ Already verified
+    // already verified
     if (user.emailVerified) {
       return NextResponse.json({
         message: "Email already verified",

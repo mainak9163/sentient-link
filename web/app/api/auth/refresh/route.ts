@@ -12,7 +12,7 @@ import { JwtPayload } from "jsonwebtoken"
 
 export async function POST(req: Request) {
   try {
-    // 1️⃣ Read refresh token from cookie
+    // read refresh token from cookie
     const cookieHeader = req.headers.get("cookie")
     if (!cookieHeader) {
       return NextResponse.json(
@@ -47,13 +47,13 @@ export async function POST(req: Request) {
 
     await connectDB()
 
-    // 3️⃣ Hash refresh token
+    // hash refresh token
     const refreshTokenHash = crypto
       .createHash("sha256")
       .update(refreshToken)
       .digest("hex")
 
-    // 4️⃣ Find valid session
+    // find valid session
     const session = await Session.findOne({
       userId: payload.userId,
       refreshTokenHash,
@@ -82,14 +82,14 @@ export async function POST(req: Request) {
       .update(newRefreshToken)
       .digest("hex")
 
-    // 6️⃣ Update session
+    // update session
     session.refreshTokenHash = newRefreshTokenHash
     session.expiresAt = new Date(
       Date.now() + 7 * 24 * 60 * 60 * 1000
     )
     await session.save()
 
-    // 7️⃣ Set new refresh token cookie
+    // set new refresh token cookie
     const response = NextResponse.json({
       accessToken: newAccessToken,
     })
