@@ -37,7 +37,7 @@ export function PasswordRequirements({
   password: string
 }) {
   return (
-    <ul className="space-y-1 text-sm">
+    <ul className="space-y-1 text-sm mt-2">
       {rules.map((rule) => {
         const valid = rule.test(password)
 

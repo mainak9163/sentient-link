@@ -1,10 +1,11 @@
 "use client"
-import { ResetPasswordForm } from "@/components/auth/reset-password/reset-password-form"
+import { AuthLayout } from "@/components/molecules/auth/auth-layout/auth-layout"
+import { ResetPasswordForm } from "@/components/molecules/auth/reset-password-form/reset-password-form"
 
 export default function ResetPasswordPage() {
   return (
-    <div className="flex min-h-svh items-center justify-center px-6">
+    <AuthLayout>
       <ResetPasswordForm/>
-    </div>
+    </AuthLayout>
   )
 }

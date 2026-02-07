@@ -1,11 +1,12 @@
 "use client"
-import { ForgotPasswordForm } from "@/components/auth/forgot-password/forgot-password-form"
 
+import { AuthLayout } from "@/components/molecules/auth/auth-layout/auth-layout"
+import { ForgotPasswordForm } from "@/components/molecules/forgot-password-form/forget-password-form"
 export default function ForgotPasswordPage() {
 
   return (
-    <div className="flex min-h-svh items-center justify-center px-6">
+    <AuthLayout>
       <ForgotPasswordForm/>
-    </div>
+    </AuthLayout>
   )
 }
