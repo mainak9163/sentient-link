@@ -1,9 +1,7 @@
-import { CreateLinkForm } from "@/components/dashboard/create-link-form/create-link-form"
+import { DashboardPage } from "@/components/molecules/dashboard/dashboard-page/dashboard-page"
 
-export default function DashboardPage() {
-  return (
-    <div className="max-w-xl space-y-6 w-full">
-      <CreateLinkForm />
-      </div>
-  )
+const DashboardRoutePage = () => {
+  return <DashboardPage />
 }
+
+export default DashboardRoutePage

@@ -1,0 +1,146 @@
+"use client"
+
+import { FC } from "react"
+import { Calendar, Copy, ExternalLink, Trash2 } from "lucide-react"
+import { formatDistanceToNow } from "date-fns"
+
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { LinksTableProps } from "./links-table.types"
+
+export const LinksTable: FC<LinksTableProps> = ({
+  links,
+  buildShortUrl,
+  onCopy,
+  onOpen,
+  onDelete,
+  className,
+  ...props
+}) => {
+  const getAiStatusBadge = (status?: string) => {
+    const badges = {
+      completed: { text: "AI", variant: "default" as const },
+      fallback: { text: "Gemini", variant: "secondary" as const },
+      skipped: { text: "Custom", variant: "outline" as const },
+    }
+
+    if (!status || !badges[status as keyof typeof badges]) return null
+
+    const badge = badges[status as keyof typeof badges]
+    return <Badge variant={badge.variant}>{badge.text}</Badge>
+  }
+
+  return (
+    <Card className={className} {...props}>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Short Link</TableHead>
+            <TableHead>Original URL</TableHead>
+            <TableHead className="text-center">Clicks</TableHead>
+            <TableHead>Created</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {links.map((link) => {
+            const shortUrl = buildShortUrl(link.shortCode)
+
+            return (
+              <TableRow key={link._id}>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => onCopy(link.shortCode)}
+                      className="group flex items-center gap-2 font-mono text-sm hover:text-primary"
+                    >
+                      <span className="max-w-50 truncate">{shortUrl}</span>
+                      <Copy className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
+                    </button>
+                    {getAiStatusBadge(link.aiStatus)}
+                  </div>
+                  {link.tags && link.tags.length > 0 && (
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      {link.tags.slice(0, 3).map((tag) => (
+                        <Badge key={tag} variant="secondary" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                      {link.tags.length > 3 && (
+                        <Badge variant="secondary" className="text-xs">
+                          +{link.tags.length - 3}
+                        </Badge>
+                      )}
+                    </div>
+                  )}
+                </TableCell>
+
+                <TableCell>
+                  <a
+                    href={link.originalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center gap-2 text-sm text-muted-foreground hover:text-primary"
+                  >
+                    <span className="max-w-75 truncate">{link.originalUrl}</span>
+                    <ExternalLink className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
+                  </a>
+                </TableCell>
+
+                <TableCell className="text-center">
+                  <span className="font-medium">{link.clicks}</span>
+                </TableCell>
+
+                <TableCell>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Calendar className="h-3 w-3" />
+                    {formatDistanceToNow(new Date(link.createdAt), {
+                      addSuffix: true,
+                    })}
+                  </div>
+                </TableCell>
+
+                <TableCell className="text-right">
+                  <div className="flex items-center justify-end gap-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => onCopy(link.shortCode)}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => onOpen(link.shortCode)}
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => onDelete(link._id)}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            )
+          })}
+        </TableBody>
+      </Table>
+    </Card>
+  )
+}
