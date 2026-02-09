@@ -40,6 +40,16 @@ export async function POST() {
       maxAge: 0,
     })
 
+    response.cookies.set({
+      name: "accessToken",
+      value: "",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 0,
+    })
+
     return response
   } catch (error) {
     console.error("[LOGOUT_ERROR]", error)

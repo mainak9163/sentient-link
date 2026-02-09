@@ -87,7 +87,7 @@ export function CreateLinkForm() {
 
         <UrlInput
           value={formState.originalUrl}
-          onChange={(value) => updateField("originalUrl", value)}
+          onChange={(value) => updateField("originalUrl", String(value))}
           disabled={isLoading}
         />
 
@@ -100,13 +100,13 @@ export function CreateLinkForm() {
         {formState.useCustomAlias ? (
           <AliasInput
             value={formState.customCode}
-            onChange={(value) => updateField("customCode", value)}
+            onChange={(value) => updateField("customCode", String(value))}
             disabled={isLoading}
           />
         ) : (
           <IntentInput
             value={formState.userIntent}
-            onChange={(value) => updateField("userIntent", value)}
+            onChange={(value) => updateField("userIntent", String(value))}
             disabled={isLoading}
           />
         )}

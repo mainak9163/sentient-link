@@ -1,12 +1,15 @@
 "use client"
 
 import Link from "next/link"
+import { useAuthStatus } from "@/hooks/use-auth-status"
 import { Link2, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { LogoutButton } from "./auth/logout-button"
+import { ThemeToggle } from "./ui/theme-toggle"
 
 export function Navbar() {
+  const isAuthenticated = useAuthStatus()
+
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-6 py-4">
@@ -20,19 +23,37 @@ group-hover:card-hover transition-all">
           </Link>
 
           <div className="flex items-center gap-2">
-            <Link href="/dashboard">
-              <Button variant="ghost" size="sm" className="text-foreground/80 hover:text-foreground">
-                Dashboard
-              </Button>
-            </Link>
-            <Link href="/links">
-              <Button variant="ghost" size="sm" className="text-foreground/80 hover:text-foreground">
-                <User className="h-4 w-4 mr-2" />
-                My Links
-              </Button>
-            </Link>
-            <ThemeToggle />
-            <LogoutButton />
+            {isAuthenticated ? (
+              <>
+                <Link href="/dashboard">
+                  <Button variant="ghost" size="sm" className="text-foreground/80 hover:text-foreground">
+                    Dashboard
+                  </Button>
+                </Link>
+                <Link href="/links">
+                  <Button variant="ghost" size="sm" className="text-foreground/80 hover:text-foreground">
+                    <User className="h-4 w-4 mr-2" />
+                    My Links
+                  </Button>
+                </Link>
+                <ThemeToggle />
+                <LogoutButton />
+              </>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="ghost" size="sm" className="text-foreground/80 hover:text-foreground">
+                    Log In
+                  </Button>
+                </Link>
+                <Link href="/register">
+                  <Button size="sm">
+                    Get Started
+                  </Button>
+                </Link>
+                <ThemeToggle />
+              </>
+            )}
           </div>
         </div>
       </div>

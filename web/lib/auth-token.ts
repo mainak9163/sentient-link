@@ -1,4 +1,5 @@
 const STORAGE_KEY = "accessToken"
+const AUTH_EVENT = "auth-token-change"
 
 let accessToken: string | null = null
 
@@ -17,9 +18,15 @@ export function getAccessToken() {
 export function setAccessToken(token: string) {
   accessToken = token
   sessionStorage.setItem(STORAGE_KEY, token)
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(AUTH_EVENT))
+  }
 }
 
 export function clearAccessToken() {
   accessToken = null
   sessionStorage.removeItem(STORAGE_KEY)
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(AUTH_EVENT))
+  }
 }

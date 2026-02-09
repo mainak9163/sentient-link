@@ -30,7 +30,7 @@ requestId: {
 },
 aiStatus: {
   type: String,
-  enum: ["pending", "completed", "failed", "fallback"],
+  enum: ["pending", "completed", "failed", "fallback", "skipped"],
   default: "pending",
 },
 aiResult: {

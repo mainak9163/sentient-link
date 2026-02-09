@@ -2,7 +2,8 @@
 
 import { useEffect } from "react"
 import { loadAccessToken } from "@/lib/auth-token"
-import { Navbar } from "@/components/navbar"
+import { Navbar } from "@/components/molecules/navbar/navbar"
+
 
 
 export default function ProtectedLayout({

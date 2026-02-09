@@ -122,6 +122,16 @@ export async function POST(req: Request) {
     })
 
     response.cookies.set({
+      name: "accessToken",
+      value: accessToken,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 15 * 60,
+    })
+
+    response.cookies.set({
       name: "refreshToken",
       value: refreshToken,
       httpOnly: true,

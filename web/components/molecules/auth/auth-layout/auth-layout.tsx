@@ -1,6 +1,6 @@
 import { FC } from 'react'
 import Image from 'next/image'
-import { ThemeToggle } from '@/components/theme-toggle'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { AuthLayoutProps } from './auth-layout.types'
 
 export const AuthLayout: FC<AuthLayoutProps> = ({ 

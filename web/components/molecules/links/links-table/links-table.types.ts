@@ -1,7 +1,7 @@
 import { ComponentProps } from "react"
 import type { Link } from "../types"
 
-export type LinksTableProps = ComponentProps<"div"> & {
+export type LinksTableProps = Omit<ComponentProps<"div">, "onCopy"> & {
   links: Link[]
   buildShortUrl: (code: string) => string
   onCopy: (code: string) => void
