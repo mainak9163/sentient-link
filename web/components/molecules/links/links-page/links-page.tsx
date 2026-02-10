@@ -92,7 +92,7 @@ export const LinksPage: FC<LinksPageProps> = ({
   }
 
   return (
-    <div className={`space-y-6 ${className ?? ""}`} {...props}>
+    <div className={`space-y-6 pt-[10vh] ${className ?? ""}`} {...props}>
       <LinksHeader count={links.length} />
       <LinksStats links={links} />
       <LinksTable
