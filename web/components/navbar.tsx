@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useAuthStatus } from "@/hooks/use-auth-status"
 import { Link2, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { LogoutButton } from "./auth/logout-button"
+import { LogoutButton } from "@/components/molecules/auth/logout-button/logout-button"
 import { ThemeToggle } from "./ui/theme-toggle"
 
 export function Navbar() {

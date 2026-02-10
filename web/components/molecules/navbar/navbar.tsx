@@ -6,7 +6,7 @@ import { Logo } from "@/components/atoms/logo/logo"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { NavbarProps } from "./navbar.types"
 import { NavLink } from "@/components/atoms/navlink/navlink"
-import { LogoutButton } from "@/components/auth/logout-button"
+import { LogoutButton } from "@/components/molecules/auth/logout-button/logout-button"
 import { useAuthStatus } from "@/hooks/use-auth-status"
 
 export const Navbar: FC<NavbarProps> = ({ className }) => {
