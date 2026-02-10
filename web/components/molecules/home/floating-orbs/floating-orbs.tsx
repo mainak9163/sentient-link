@@ -1,10 +1,11 @@
 import { FC } from 'react'
 import { motion } from 'framer-motion'
 import { FloatingOrbsProps } from './floating-orbs.types'
+import { BoxLayout } from '@/components/atoms/box-layout/box-layout'
 
 export const FloatingOrbs: FC<FloatingOrbsProps> = () => {
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden">
+    <BoxLayout className="fixed inset-0 pointer-events-none overflow-hidden">
       <motion.div
         className="absolute -top-40 -left-40 w-80 h-80 rounded-full bg-linear-to-br from-violet-400/30 to-purple-600/30 blur-3xl"
         animate={{
@@ -41,6 +42,6 @@ export const FloatingOrbs: FC<FloatingOrbsProps> = () => {
           repeatType: "reverse",
         }}
       />
-    </div>
+    </BoxLayout>
   )
 }

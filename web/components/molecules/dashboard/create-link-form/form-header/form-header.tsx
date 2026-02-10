@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import type { FormHeaderProps } from "./form-header.types"
+import { BoxLayout } from "@/components/atoms/box-layout/box-layout"
 
 export function FormHeader({
   useCustomAlias,
@@ -7,7 +8,7 @@ export function FormHeader({
   ...props
 }: FormHeaderProps) {
   return (
-    <div className={`flex items-center justify-between ${className ?? ""}`} {...props}>
+    <BoxLayout className={`flex items-center justify-between ${className ?? ""}`} {...props}>
       <div>
         <h2 className="text-lg font-semibold">Create short link</h2>
         <p className="text-sm text-muted-foreground">
@@ -22,6 +23,6 @@ export function FormHeader({
           <Badge variant="secondary">AI Assisted</Badge>
         )}
       </div>
-    </div>
+    </BoxLayout>
   )
 }

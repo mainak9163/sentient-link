@@ -1,5 +1,6 @@
 import { FC } from 'react'
 import { AuthLinkProps } from './auth-link.types'
+import { BoxLayout } from '@/components/atoms/box-layout/box-layout'
 import Link from 'next/link'
 
 export const AuthLink: FC<AuthLinkProps> = ({ 
@@ -15,10 +16,10 @@ export const AuthLink: FC<AuthLinkProps> = ({
   }
 
   return (
-    <div className={`${alignClasses[align]} text-sm ${className || ''}`}>
+    <BoxLayout className={`${alignClasses[align]} text-sm ${className || ''}`}>
       <Link href={href} className="underline underline-offset-4">
         {text}
       </Link>
-    </div>
+    </BoxLayout>
   )
 }

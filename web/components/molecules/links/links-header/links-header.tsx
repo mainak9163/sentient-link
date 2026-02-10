@@ -3,6 +3,7 @@
 import { FC } from "react"
 import { Button } from "@/components/ui/button"
 import { LinksHeaderProps } from "./links-header.types"
+import { BoxLayout } from "@/components/atoms/box-layout/box-layout"
 
 export const LinksHeader: FC<LinksHeaderProps> = ({
   count,
@@ -10,7 +11,7 @@ export const LinksHeader: FC<LinksHeaderProps> = ({
   ...props
 }) => {
   return (
-    <div className={`flex items-center justify-between ${className ?? ""}`} {...props}>
+    <BoxLayout className={`flex items-center justify-between ${className ?? ""}`} {...props}>
       <div>
         <h1 className="text-3xl font-bold">Your Links</h1>
         <p className="text-sm text-muted-foreground">
@@ -21,6 +22,6 @@ export const LinksHeader: FC<LinksHeaderProps> = ({
       <Button onClick={() => (window.location.href = "/dashboard")}>
         Create New Link
       </Button>
-    </div>
+    </BoxLayout>
   )
 }

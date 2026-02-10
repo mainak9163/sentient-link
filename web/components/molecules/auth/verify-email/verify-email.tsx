@@ -4,6 +4,7 @@ import { FC, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { LoadingSpinner } from '@/components/atoms/loading-spinner/loading-spinner'
+import { BoxLayout } from '@/components/atoms/box-layout/box-layout'
 import { VerifyEmailContentProps } from './verify-email.types'
 
 export const VerifyEmailContent: FC<VerifyEmailContentProps> = ({ className }) => {
@@ -71,11 +72,11 @@ export const VerifyEmailContent: FC<VerifyEmailContentProps> = ({ className }) =
   }, [token, router])
 
   return (
-    <div className={`flex min-h-svh items-center justify-center px-6 ${className || ''}`}>
+    <BoxLayout className={`flex min-h-svh items-center justify-center px-6 ${className || ''}`}>
       <LoadingSpinner
         title="Verifying your email…"
         description="Please wait while we confirm your email address."
       />
-    </div>
+    </BoxLayout>
   )
 }

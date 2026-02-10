@@ -2,6 +2,7 @@ import { FC } from 'react'
 import Image from 'next/image'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { AuthLayoutProps } from './auth-layout.types'
+import { BoxLayout } from '@/components/atoms/box-layout/box-layout'
 
 export const AuthLayout: FC<AuthLayoutProps> = ({ 
   children, 
@@ -12,7 +13,7 @@ export const AuthLayout: FC<AuthLayoutProps> = ({
   className 
 }) => {
   return (
-    <div className={`grid min-h-svh ${showImage ? 'lg:grid-cols-2' : ''} ${className || ''}`}>
+    <BoxLayout className={`grid min-h-svh ${showImage ? 'lg:grid-cols-2' : ''} ${className || ''}`}>
       <div className="flex flex-col gap-4 p-6">
         {showThemeToggle && (
           <div className="fixed right-4 top-4">
@@ -37,6 +38,6 @@ export const AuthLayout: FC<AuthLayoutProps> = ({
           />
         </div>
       )}
-    </div>
+    </BoxLayout>
   )
 }

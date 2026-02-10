@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import type { ResultPreviewProps } from "./result-preview.types"
+import { BoxLayout } from "@/components/atoms/box-layout/box-layout"
 
 export function ResultPreview({
   shortUrl,
@@ -71,7 +72,7 @@ export function ResultPreview({
   const message = getMessage()
 
   return (
-    <div
+    <BoxLayout
       className={`space-y-3 rounded-lg border bg-card p-4 text-sm ${className ?? ""}`}
       {...props}
     >
@@ -107,6 +108,6 @@ export function ResultPreview({
           </span>
         </AlertDescription>
       </Alert>
-    </div>
+    </BoxLayout>
   )
 }

@@ -4,6 +4,7 @@ import { FC } from "react"
 import { BarChart3, ExternalLink } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { LinksStatsProps } from "./links-stats.types"
+import { BoxLayout } from "@/components/atoms/box-layout/box-layout"
 
 export const LinksStats: FC<LinksStatsProps> = ({
   links,
@@ -14,7 +15,7 @@ export const LinksStats: FC<LinksStatsProps> = ({
   const averageClicks = links.length > 0 ? Math.round(totalClicks / links.length) : 0
 
   return (
-    <div className={`grid gap-4 md:grid-cols-3 ${className ?? ""}`} {...props}>
+    <BoxLayout className={`grid gap-4 md:grid-cols-3 ${className ?? ""}`} {...props}>
       <Card className="p-4">
         <div className="flex items-center justify-between">
           <div>
@@ -44,6 +45,6 @@ export const LinksStats: FC<LinksStatsProps> = ({
           <BarChart3 className="h-8 w-8 text-muted-foreground" />
         </div>
       </Card>
-    </div>
+    </BoxLayout>
   )
 }

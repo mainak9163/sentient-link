@@ -5,6 +5,7 @@ import { GoogleLogin, CredentialResponse } from '@react-oauth/google'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { setAccessToken } from '@/lib/auth-token'
+import { BoxLayout } from '@/components/atoms/box-layout/box-layout'
 import { SocialLoginProps } from './social-login.types'
 
 export const SocialLogin: FC<SocialLoginProps> = ({ redirectTo = '/dashboard', className }) => {
@@ -43,11 +44,11 @@ export const SocialLogin: FC<SocialLoginProps> = ({ redirectTo = '/dashboard', c
   }
 
   return (
-    <div className={className}>
+    <BoxLayout className={className}>
       <GoogleLogin
         onSuccess={handleGoogleSuccess}
         onError={handleGoogleError}
       />
-    </div>
+    </BoxLayout>
   )
 }

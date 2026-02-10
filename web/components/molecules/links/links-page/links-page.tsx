@@ -11,6 +11,7 @@ import { LinksEmptyState } from "../links-empty-state/links-empty-state"
 import { LinksLoading } from "../links-loading/links-loading"
 import { DeleteLinkDialog } from "../delete-link-dialog/delete-link-dialog"
 import { LinksPageProps } from "./links-page.types"
+import { BoxLayout } from "@/components/atoms/box-layout/box-layout"
 
 export const LinksPage: FC<LinksPageProps> = ({
   className,
@@ -92,7 +93,7 @@ export const LinksPage: FC<LinksPageProps> = ({
   }
 
   return (
-    <div className={`space-y-6 pt-[10vh] ${className ?? ""}`} {...props}>
+    <BoxLayout className={`space-y-6 pt-[10vh] ${className ?? ""}`} {...props}>
       <LinksHeader count={links.length} />
       <LinksStats links={links} />
       <LinksTable
@@ -108,6 +109,6 @@ export const LinksPage: FC<LinksPageProps> = ({
         onConfirm={handleDelete}
         onOpenChange={() => setDeleteId(null)}
       />
-    </div>
+    </BoxLayout>
   )
 }
