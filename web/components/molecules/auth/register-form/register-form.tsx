@@ -74,7 +74,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({ className, ...props }) => 
 
         <FieldSeparator>Or continue with</FieldSeparator>
 
-        <SocialLogin/>
+        <SocialLogin className="flex justify-center"/>
 
         <FieldDescription className="text-center">
           Already have an account?{' '}

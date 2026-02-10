@@ -65,7 +65,7 @@ export const LoginForm: FC<LoginFormProps> = ({ className, ...props }) => {
 
         <FieldSeparator>Or continue with</FieldSeparator>
 
-        <SocialLogin />
+        <SocialLogin className="flex justify-center"/>
 
         <FieldDescription className="text-center">
           Don&apos;t have an account?{' '}
