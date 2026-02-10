@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { connectDB } from "@/lib/db"
 import { Link } from "@/models/link"
 import { getAuthUser } from "@/lib/get-auth-user"
@@ -8,10 +8,11 @@ import { getAuthUser } from "@/lib/get-auth-user"
  * Delete a link (only if it belongs to the user)
  */
 export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
-  console.info("[LINKS] DELETE /api/links/:id", { id: params.id })
+  const { id } = await params
+  console.info("[LINKS] DELETE /api/links/:id", { id })
 
   try {
     // Authenticate
@@ -24,7 +25,7 @@ export async function DELETE(
 
     // Find and delete link (only if it belongs to user)
     const link = await Link.findOneAndDelete({
-      _id: params.id,
+      _id: id,
       userId: user.userId,
     })
 
@@ -36,7 +37,7 @@ export async function DELETE(
     }
 
     console.info("[LINKS] Link deleted", {
-      id: params.id,
+      id,
       shortCode: link.shortCode,
     })
 
@@ -58,10 +59,11 @@ export async function DELETE(
  * Get a single link's details
  */
 export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
-  console.info("[LINKS] GET /api/links/:id", { id: params.id })
+  const { id } = await params
+  console.info("[LINKS] GET /api/links/:id", { id })
 
   try {
     // Authenticate
@@ -74,7 +76,7 @@ export async function GET(
 
     // Find link (only if it belongs to user)
     const link = await Link.findOne({
-      _id: params.id,
+      _id: id,
       userId: user.userId,
     })
 
