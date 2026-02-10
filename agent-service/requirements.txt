@@ -1,7 +1,25 @@
+# Web framework
 fastapi
 uvicorn[standard]
+
+# Data validation
 pydantic
+
+# Environment variables
 python-dotenv
+
+# HTTP client (used in some integrations)
 httpx
+
+# Redis + Queue
 redis
 rq
+
+# Google Gemini API (LLM + Embeddings)
+google-genai
+
+# Vector database client (Qdrant)
+qdrant-client
+
+# Agent orchestration
+langgraph
